@@ -45,15 +45,13 @@ class _CameraScreenState extends State<CameraScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Camera App'),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.mic),
-            onPressed: () {
-              // Voice record functionality
-            },
-          ),
-        ],
+        title: Text(
+          'Create a moment',
+          style: TextStyle(letterSpacing: 1.5),
+        ),
+        centerTitle: true,
+        backgroundColor: Color(0x44000000),
+        elevation: 0,
       ),
       body: _selectedIndex == 1
           ? FutureBuilder<void>(
@@ -67,86 +65,97 @@ class _CameraScreenState extends State<CameraScreen> {
                         bottom: 20.0,
                         left: 0,
                         right: 0,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        child: Column(
                           children: [
                             IconButton(
-                              icon: Icon(Icons.photo_library),
-                              onPressed: () async {
-                                final picker = ImagePicker();
-                                final XFile? pickedFile = await picker
-                                    .pickImage(source: ImageSource.gallery);
-                                if (pickedFile != null) {
-                                  // Handle the picked image
-                                  print('Image picked: ${pickedFile.path}');
-                                }
+                              icon: Icon(Icons.mic),
+                              onPressed: () {
+                                // Voice record functionality
                               },
                             ),
-                            GestureDetector(
-                              onTap: () async {
-                                try {
-                                  await _initializeControllerFuture;
-                                  final path = join(
-                                    (await getTemporaryDirectory()).path,
-                                    '${DateTime.now()}.png',
-                                  );
-                                  await _controller
-                                      .takePicture()
-                                      .then((XFile file) {
-                                    print('Image saved to: ${file.path}');
-                                  });
-                                } catch (e) {
-                                  print(e);
-                                }
-                              },
-                              onLongPressStart: (_) async {
-                                setState(() {
-                                  _isRecording = true;
-                                });
-                                final path = join(
-                                  (await getTemporaryDirectory()).path,
-                                  '${DateTime.now()}.mp4',
-                                );
-                                await _controller.startVideoRecording();
-                              },
-                              onLongPressEnd: (_) async {
-                                await _controller
-                                    .stopVideoRecording()
-                                    .then((XFile file) {
-                                  setState(() {
-                                    _isRecording = false;
-                                  });
-                                  print('Video saved to: ${file.path}');
-                                });
-                              },
-                              child: Container(
-                                width: 70.0,
-                                height: 70.0,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color:
-                                      _isRecording ? Colors.red : Colors.white,
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                IconButton(
+                                  icon: Icon(Icons.photo_library),
+                                  onPressed: () async {
+                                    final picker = ImagePicker();
+                                    final XFile? pickedFile = await picker
+                                        .pickImage(source: ImageSource.gallery);
+                                    if (pickedFile != null) {
+                                      // Handle the picked image
+                                      print('Image picked: ${pickedFile.path}');
+                                    }
+                                  },
                                 ),
-                              ),
-                            ),
-                            IconButton(
-                              icon: Icon(Icons.switch_camera),
-                              onPressed: () async {
-                                final cameras = await availableCameras();
-                                final newCamera = cameras.firstWhere(
-                                  (camera) =>
-                                      camera.lensDirection !=
-                                      widget.camera.lensDirection,
-                                );
-                                setState(() {
-                                  _controller = CameraController(
-                                    newCamera,
-                                    ResolutionPreset.medium,
-                                  );
-                                  _initializeControllerFuture =
-                                      _controller.initialize();
-                                });
-                              },
+                                GestureDetector(
+                                  onTap: () async {
+                                    try {
+                                      await _initializeControllerFuture;
+                                      final path = join(
+                                        (await getTemporaryDirectory()).path,
+                                        '${DateTime.now()}.png',
+                                      );
+                                      await _controller
+                                          .takePicture()
+                                          .then((XFile file) {
+                                        print('Image saved to: ${file.path}');
+                                      });
+                                    } catch (e) {
+                                      print(e);
+                                    }
+                                  },
+                                  onLongPressStart: (_) async {
+                                    setState(() {
+                                      _isRecording = true;
+                                    });
+                                    final path = join(
+                                      (await getTemporaryDirectory()).path,
+                                      '${DateTime.now()}.mp4',
+                                    );
+                                    await _controller.startVideoRecording();
+                                  },
+                                  onLongPressEnd: (_) async {
+                                    await _controller
+                                        .stopVideoRecording()
+                                        .then((XFile file) {
+                                      setState(() {
+                                        _isRecording = false;
+                                      });
+                                      print('Video saved to: ${file.path}');
+                                    });
+                                  },
+                                  child: Container(
+                                    width: 70.0,
+                                    height: 70.0,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: _isRecording
+                                          ? Colors.red
+                                          : Colors.white,
+                                    ),
+                                  ),
+                                ),
+                                IconButton(
+                                  icon: Icon(Icons.switch_camera),
+                                  onPressed: () async {
+                                    final cameras = await availableCameras();
+                                    final newCamera = cameras.firstWhere(
+                                      (camera) =>
+                                          camera.lensDirection !=
+                                          widget.camera.lensDirection,
+                                    );
+                                    setState(() {
+                                      _controller = CameraController(
+                                        newCamera,
+                                        ResolutionPreset.medium,
+                                      );
+                                      _initializeControllerFuture =
+                                          _controller.initialize();
+                                    });
+                                  },
+                                ),
+                              ],
                             ),
                           ],
                         ),
@@ -166,7 +175,7 @@ class _CameraScreenState extends State<CameraScreen> {
         onTap: _onItemTapped,
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon: Icon(Icons.feed),
+            icon: Icon(Icons.feed_outlined),
             label: 'Feed',
           ),
           BottomNavigationBarItem(
@@ -174,7 +183,7 @@ class _CameraScreenState extends State<CameraScreen> {
             label: 'Camera',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.timeline),
+            icon: Icon(Icons.timeline_sharp),
             label: 'Timeline',
           ),
         ],
