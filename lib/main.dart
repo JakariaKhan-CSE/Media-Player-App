@@ -2,10 +2,14 @@ import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:new_app/camera_screen.dart';
 import 'package:new_app/image_feature.dart';
+import 'package:new_app/video_screen.dart';
+
+// for video
+List<CameraDescription> cameras = [];
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // final cameras = await availableCameras();
+  final cameras = await availableCameras();
   // final firstCamera = cameras.first;
   runApp(MyApp());
 }
@@ -22,7 +26,8 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       // home: CameraScreen(camera: camera),
-      home: CameraScreen(),
+      //home: CameraScreen(),
+      home: VideoScreen(),
       // home: CameraScreenFeature(),
     );
   }

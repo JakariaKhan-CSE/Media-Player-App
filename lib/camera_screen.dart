@@ -123,9 +123,7 @@ class _CameraScreenState extends State<CameraScreen> {
       body: _selectedIndex == 1
           ? Stack(
               children: [
-                Expanded(
-                  child: CameraPreview(_cameraController!),
-                ),
+                CameraPreview(_cameraController!),
                 Positioned(
                   bottom: 20.0,
                   left: 0,
