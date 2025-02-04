@@ -5,15 +5,13 @@ import 'package:new_app/image_feature.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  final cameras = await availableCameras();
-  final firstCamera = cameras.first;
-  runApp(MyApp(camera: firstCamera));
+  // final cameras = await availableCameras();
+  // final firstCamera = cameras.first;
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  final CameraDescription camera;
-
-  const MyApp({super.key, required this.camera});
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -23,8 +21,9 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      //home: CameraScreen(camera: camera),
-      home: CameraScreenFeature(),
+      // home: CameraScreen(camera: camera),
+      home: CameraScreen(),
+      // home: CameraScreenFeature(),
     );
   }
 }
