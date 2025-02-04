@@ -1,6 +1,7 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:new_app/camera_screen.dart';
+import 'package:new_app/image_feature.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,7 +23,8 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: CameraScreen(camera: camera),
+      //home: CameraScreen(camera: camera),
+      home: CameraScreenFeature(),
     );
   }
 }
