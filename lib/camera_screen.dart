@@ -171,25 +171,23 @@ class _CameraScreenState extends State<CameraScreen> {
               child: Text('Page ${_selectedIndex == 0 ? 'Feed' : 'Timeline'}'),
             ),
       bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.feed_outlined),
             label: 'Feed',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.camera),
+            icon: Icon(Icons.camera_alt),
             label: 'Camera',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.timeline_sharp),
+            icon: Icon(Icons.timeline),
             label: 'Timeline',
           ),
         ],
-        selectedItemColor: Colors.blue,
-        unselectedItemColor: Colors.grey,
-        type: BottomNavigationBarType.shifting,
+        currentIndex: _selectedIndex,
+        selectedItemColor: Colors.amber[800],
+        onTap: _onItemTapped,
       ),
     );
   }
