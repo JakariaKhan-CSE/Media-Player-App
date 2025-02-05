@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
@@ -5,10 +6,9 @@ import 'package:image_picker/image_picker.dart';
 import 'package:new_app/audio/audio_recorder.dart';
 import 'package:new_app/image_preview.dart';
 import 'package:new_app/video/video_player.dart';
-import 'package:new_app/video/video_recorder_screen.dart';
 
 class CameraScreen extends StatefulWidget {
-  const CameraScreen({Key? key}) : super(key: key);
+  const CameraScreen({super.key});
 
   @override
   _CameraScreenState createState() => _CameraScreenState();
@@ -24,6 +24,29 @@ class _CameraScreenState extends State<CameraScreen> {
   int _selectedCameraIndex = 0;
   File? _imageFile;
   CameraDescription? firstCamera;
+
+  // for counter
+  int _recordingDuration = 0;
+  Timer? _timer;
+
+  void _startTimer() {
+    print('Start Timer Trigger');
+    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+      setState(() {
+        _recordingDuration++;
+      });
+      print(_recordingDuration);
+    });
+  }
+
+  void _stopTimer() {
+    print('Stop Timer Trigger');
+    _timer?.cancel();
+    _timer = null;
+    setState(() {
+      _recordingDuration = 0;
+    });
+  }
 
   @override
   void initState() {
@@ -98,6 +121,7 @@ class _CameraScreenState extends State<CameraScreen> {
   @override
   void dispose() {
     _cameraController?.dispose();
+    _timer?.cancel();
     super.dispose();
   }
 
@@ -109,21 +133,36 @@ class _CameraScreenState extends State<CameraScreen> {
 
   @override
   Widget build(BuildContext context) {
+    print('Building widget. _isRecording: $_isRecording, _recordingDuration: $_recordingDuration');
     final height = MediaQuery.of(context).size.height;
 
 // this is required if i not use futurebuilder
     // if (_cameraController == null || !_cameraController!.value.isInitialized) {
     //   return Center(child: CircularProgressIndicator());
     // }
+    // futurebuilder is very important otherwise get screen hold error
     return Scaffold(
       appBar: AppBar(
         title: Text(
           'Create a moment',
           style: TextStyle(letterSpacing: 1.5),
         ),
-        centerTitle: true,
         backgroundColor: Color(0x44000000),
         elevation: 0,
+        actions: [
+          if(_isRecording)
+            Padding(
+              padding: const EdgeInsets.only(right: 5),
+              child: Text(
+                '$_recordingDuration seconds',
+                style: TextStyle(
+                  fontSize: 20,
+                  color: Colors.red,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+        ],
       ),
       body: _selectedIndex == 1
           ? FutureBuilder(
@@ -133,6 +172,25 @@ class _CameraScreenState extends State<CameraScreen> {
                   // return SizedBox(height: height, child: CameraPreview(_controller));
                   return Stack(
                     children: [
+                      // Timer Text (Positioned at the top center)
+                      // this code not work
+                      // if (_isRecording)
+                      //   Positioned(
+                      //     top: 30, // Adjust this value to position the timer
+                      //     left: 0,
+                      //     right: 0,
+                      //     child: Center(
+                      //       child: Text(
+                      //         '$_recordingDuration seconds',
+                      //         style: TextStyle(
+                      //           fontSize: 20,
+                      //           color: Colors.red,
+                      //           fontWeight: FontWeight.bold,
+                      //         ),
+                      //       ),
+                      //     ),
+                      //   ),
+
                       SizedBox(
                           height: height,
                           child: CameraPreview(_cameraController!)),
@@ -171,6 +229,7 @@ class _CameraScreenState extends State<CameraScreen> {
                                   //   ));
                                   // },
                                   onLongPressStart: (details) async {
+
                                     try {
                                       await _initializeControllerFuture;
                                       if (!mounted) {
@@ -183,14 +242,19 @@ class _CameraScreenState extends State<CameraScreen> {
                                           ?.startVideoRecording();
 
                                       setState(() {
-                                        _isRecording = !_isRecording;
+                                        _isRecording = true;
                                       });
+
+                                      _startTimer();
                                     } catch (e) {}
                                   },
                                   onLongPressEnd: (details) async {
+
                                     try {
                                       final video = await _cameraController!
                                           .stopVideoRecording();
+
+                                      _stopTimer();
 
                                       await Navigator.of(context).push(
                                         MaterialPageRoute(
@@ -201,7 +265,7 @@ class _CameraScreenState extends State<CameraScreen> {
                                         ),
                                       );
                                       setState(() {
-                                        _isRecording = !_isRecording;
+                                        _isRecording = false;
                                       });
                                     } catch (e) {}
                                   },

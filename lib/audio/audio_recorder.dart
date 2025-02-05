@@ -4,6 +4,8 @@ import 'package:record/record.dart';
 import 'package:path_provider/path_provider.dart';
 
 class AudioRecorderPage extends StatefulWidget {
+  const AudioRecorderPage({super.key});
+
   @override
   _AudioRecorderPageState createState() => _AudioRecorderPageState();
 }

@@ -4,7 +4,7 @@ import 'dart:io';
 class ImagePreviewScreen extends StatelessWidget {
   final File imageFile;
 
-  ImagePreviewScreen({required this.imageFile});
+  const ImagePreviewScreen({super.key, required this.imageFile});
 
   @override
   Widget build(BuildContext context) {
