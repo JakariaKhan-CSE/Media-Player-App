@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:new_app/audio/audio_recorder.dart';
 import 'package:new_app/image_preview.dart';
+import 'package:new_app/video/video_player.dart';
 import 'package:new_app/video/video_recorder_screen.dart';
 
 class CameraScreen extends StatefulWidget {
@@ -15,7 +16,7 @@ class CameraScreen extends StatefulWidget {
 
 class _CameraScreenState extends State<CameraScreen> {
   // late CameraController _controller;
-  // late Future<void> _initializeControllerFuture;
+  late Future<void> _initializeControllerFuture;
   bool _isRecording = false;
   int _selectedIndex = 1;
   CameraController? _cameraController;
@@ -28,23 +29,23 @@ class _CameraScreenState extends State<CameraScreen> {
   void initState() {
     super.initState();
     _initializeCamera();
-    setState(() {});
   }
 
   Future<void> _initializeCamera() async {
     cameras = await availableCameras();
 
-// for video (i using rear camera)
-    firstCamera = cameras?.firstWhere((camera) {
-      return camera.lensDirection == CameraLensDirection.back;
-    });
+// // for video (i using rear camera)
+//     firstCamera = cameras?.firstWhere((camera) {
+//       return camera.lensDirection == CameraLensDirection.back;
+//     });
 
     if (cameras!.isNotEmpty) {
       _cameraController = CameraController(
         cameras![_selectedCameraIndex],
         ResolutionPreset.medium,
       );
-      await _cameraController!.initialize();
+      // await _cameraController!.initialize();
+      _initializeControllerFuture = _cameraController!.initialize();
       if (!mounted) return;
       setState(() {});
     }
@@ -110,9 +111,10 @@ class _CameraScreenState extends State<CameraScreen> {
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
 
-    if (_cameraController == null || !_cameraController!.value.isInitialized) {
-      return Center(child: CircularProgressIndicator());
-    }
+// this is required if i not use futurebuilder
+    // if (_cameraController == null || !_cameraController!.value.isInitialized) {
+    //   return Center(child: CircularProgressIndicator());
+    // }
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -124,62 +126,111 @@ class _CameraScreenState extends State<CameraScreen> {
         elevation: 0,
       ),
       body: _selectedIndex == 1
-          ? Stack(
-              children: [
-                SizedBox(
-                    height: height, child: CameraPreview(_cameraController!)),
-                Positioned(
-                  bottom: 20.0,
-                  left: 0,
-                  right: 0,
-                  child: Column(
+          ? FutureBuilder(
+              future: _initializeControllerFuture,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.done) {
+                  // return SizedBox(height: height, child: CameraPreview(_controller));
+                  return Stack(
                     children: [
-                      IconButton(
-                        icon: Icon(Icons.mic),
-                        onPressed: () {
-                          Navigator.of(context).push(MaterialPageRoute(
-                            builder: (context) => AudioRecorderPage(),
-                          ));
-                        },
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          IconButton(
-                            icon: Icon(Icons.photo_library),
-                            onPressed: () {
-                              _pickImageFromGallery(context);
-                            },
-                          ),
-                          GestureDetector(
-                            onTap: () {
-                              _captureImage(context);
-                            },
-                            onLongPress: () {
-                              Navigator.of(context).push(MaterialPageRoute(
-                                builder: (context) =>
-                                    VideoRecorderScreen(camera: firstCamera!),
-                              ));
-                            },
-                            child: Container(
-                              width: 70.0,
-                              height: 70.0,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: _isRecording ? Colors.red : Colors.white,
-                              ),
+                      SizedBox(
+                          height: height,
+                          child: CameraPreview(_cameraController!)),
+                      Positioned(
+                        bottom: 20.0,
+                        left: 0,
+                        right: 0,
+                        child: Column(
+                          children: [
+                            IconButton(
+                              icon: Icon(Icons.mic),
+                              onPressed: () {
+                                Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (context) => AudioRecorderPage(),
+                                ));
+                              },
                             ),
-                          ),
-                          IconButton(
-                            icon: Icon(Icons.switch_camera),
-                            onPressed: _switchCamera,
-                          ),
-                        ],
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                IconButton(
+                                  icon: Icon(Icons.photo_library),
+                                  onPressed: () {
+                                    _pickImageFromGallery(context);
+                                  },
+                                ),
+                                GestureDetector(
+                                  onTap: () {
+                                    _captureImage(context);
+                                  },
+                                  // onLongPress: () {
+                                  //   Navigator.of(context)
+                                  //       .push(MaterialPageRoute(
+                                  //     builder: (context) => VideoRecorderScreen(
+                                  //         camera: firstCamera!),
+                                  //   ));
+                                  // },
+                                  onLongPressStart: (details) async {
+                                    try {
+                                      await _initializeControllerFuture;
+                                      if (!mounted) {
+                                        return;
+                                      }
+
+                                      await _cameraController!
+                                          .prepareForVideoRecording();
+                                      await _cameraController
+                                          ?.startVideoRecording();
+
+                                      setState(() {
+                                        _isRecording = !_isRecording;
+                                      });
+                                    } catch (e) {}
+                                  },
+                                  onLongPressEnd: (details) async {
+                                    try {
+                                      final video = await _cameraController!
+                                          .stopVideoRecording();
+
+                                      await Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              VideoPlayerScreen(
+                                            videoPath: video.path,
+                                          ),
+                                        ),
+                                      );
+                                      setState(() {
+                                        _isRecording = !_isRecording;
+                                      });
+                                    } catch (e) {}
+                                  },
+                                  child: Container(
+                                    width: 70.0,
+                                    height: 70.0,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: _isRecording
+                                          ? Colors.red
+                                          : Colors.white,
+                                    ),
+                                  ),
+                                ),
+                                IconButton(
+                                  icon: Icon(Icons.switch_camera),
+                                  onPressed: _switchCamera,
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
                     ],
-                  ),
-                ),
-              ],
+                  );
+                } else {
+                  return const Center(child: CircularProgressIndicator());
+                }
+              },
             )
           : Center(
               child: Text('Page ${_selectedIndex == 0 ? 'Feed' : 'Timeline'}'),
