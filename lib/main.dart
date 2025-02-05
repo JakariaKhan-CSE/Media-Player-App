@@ -1,8 +1,6 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:new_app/camera_screen.dart';
-import 'package:new_app/image_feature.dart';
-import 'package:new_app/video_screen.dart';
 
 // for video
 List<CameraDescription> cameras = [];
@@ -25,10 +23,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      // home: CameraScreen(camera: camera),
-      //home: CameraScreen(),
-      home: VideoScreen(),
-      // home: CameraScreenFeature(),
+      home: CameraScreen(),
     );
   }
 }

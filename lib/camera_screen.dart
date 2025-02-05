@@ -4,8 +4,7 @@ import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:new_app/image_preview.dart';
-import 'package:path/path.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:new_app/video/video_recorder_screen.dart';
 
 class CameraScreen extends StatefulWidget {
   const CameraScreen({Key? key}) : super(key: key);
@@ -23,20 +22,22 @@ class _CameraScreenState extends State<CameraScreen> {
   List<CameraDescription>? cameras;
   int _selectedCameraIndex = 0;
   File? _imageFile;
+  CameraDescription? firstCamera;
 
   @override
   void initState() {
     super.initState();
-    // _controller = CameraController(
-    //   widget.camera,
-    //   ResolutionPreset.medium,
-    // );
-    // _initializeControllerFuture = _controller.initialize();
     _initializeCamera();
   }
 
   Future<void> _initializeCamera() async {
     cameras = await availableCameras();
+
+// for video
+    firstCamera = cameras?.firstWhere((camera) {
+      return camera.lensDirection == CameraLensDirection.front;
+    });
+
     if (cameras!.isNotEmpty) {
       _cameraController = CameraController(
         cameras![_selectedCameraIndex],
@@ -149,26 +150,32 @@ class _CameraScreenState extends State<CameraScreen> {
                             onTap: () {
                               _captureImage(context);
                             },
-                            onLongPressStart: (_) async {
-                              setState(() {
-                                _isRecording = true;
-                              });
-                              final path = join(
-                                (await getTemporaryDirectory()).path,
-                                '${DateTime.now()}.mp4',
-                              );
-                              await _cameraController?.startVideoRecording();
+                            onLongPress: () {
+                              Navigator.of(context).push(MaterialPageRoute(
+                                builder: (context) =>
+                                    VideoRecorderScreen(camera: firstCamera!),
+                              ));
                             },
-                            onLongPressEnd: (_) async {
-                              await _cameraController!
-                                  .stopVideoRecording()
-                                  .then((XFile file) {
-                                setState(() {
-                                  _isRecording = false;
-                                });
-                                print('Video saved to: ${file.path}');
-                              });
-                            },
+                            // onLongPressStart: (_) async {
+                            //   setState(() {
+                            //     _isRecording = true;
+                            //   });
+                            //   final path = join(
+                            //     (await getTemporaryDirectory()).path,
+                            //     '${DateTime.now()}.mp4',
+                            //   );
+                            //   await _cameraController?.startVideoRecording();
+                            // },
+                            // onLongPressEnd: (_) async {
+                            //   await _cameraController!
+                            //       .stopVideoRecording()
+                            //       .then((XFile file) {
+                            //     setState(() {
+                            //       _isRecording = false;
+                            //     });
+                            //     print('Video saved to: ${file.path}');
+                            //   });
+                            // },
                             child: Container(
                               width: 70.0,
                               height: 70.0,
