@@ -28,14 +28,15 @@ class _CameraScreenState extends State<CameraScreen> {
   void initState() {
     super.initState();
     _initializeCamera();
+    setState(() {});
   }
 
   Future<void> _initializeCamera() async {
     cameras = await availableCameras();
 
-// for video
+// for video (i using rear camera)
     firstCamera = cameras?.firstWhere((camera) {
-      return camera.lensDirection == CameraLensDirection.front;
+      return camera.lensDirection == CameraLensDirection.back;
     });
 
     if (cameras!.isNotEmpty) {
@@ -95,7 +96,6 @@ class _CameraScreenState extends State<CameraScreen> {
 
   @override
   void dispose() {
-    // _controller.dispose();
     _cameraController?.dispose();
     super.dispose();
   }
@@ -108,6 +108,8 @@ class _CameraScreenState extends State<CameraScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final height = MediaQuery.of(context).size.height;
+
     if (_cameraController == null || !_cameraController!.value.isInitialized) {
       return Center(child: CircularProgressIndicator());
     }
@@ -124,7 +126,8 @@ class _CameraScreenState extends State<CameraScreen> {
       body: _selectedIndex == 1
           ? Stack(
               children: [
-                CameraPreview(_cameraController!),
+                SizedBox(
+                    height: height, child: CameraPreview(_cameraController!)),
                 Positioned(
                   bottom: 20.0,
                   left: 0,
@@ -158,26 +161,6 @@ class _CameraScreenState extends State<CameraScreen> {
                                     VideoRecorderScreen(camera: firstCamera!),
                               ));
                             },
-                            // onLongPressStart: (_) async {
-                            //   setState(() {
-                            //     _isRecording = true;
-                            //   });
-                            //   final path = join(
-                            //     (await getTemporaryDirectory()).path,
-                            //     '${DateTime.now()}.mp4',
-                            //   );
-                            //   await _cameraController?.startVideoRecording();
-                            // },
-                            // onLongPressEnd: (_) async {
-                            //   await _cameraController!
-                            //       .stopVideoRecording()
-                            //       .then((XFile file) {
-                            //     setState(() {
-                            //       _isRecording = false;
-                            //     });
-                            //     print('Video saved to: ${file.path}');
-                            //   });
-                            // },
                             child: Container(
                               width: 70.0,
                               height: 70.0,

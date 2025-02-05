@@ -39,51 +39,67 @@ class _VideoRecorderScreenState extends State<VideoRecorderScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final height = MediaQuery.of(context).size.height;
+
     return Scaffold(
       appBar: AppBar(title: const Text('Video recorder screen')),
       body: FutureBuilder<void>(
         future: _initializeControllerFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
-            return CameraPreview(_controller);
+            return SizedBox(height: height, child: CameraPreview(_controller));
           } else {
             return const Center(child: CircularProgressIndicator());
           }
         },
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          try {
-            await _initializeControllerFuture;
+          onPressed: () async {
+            try {
+              await _initializeControllerFuture;
+/*
+Avoid Crashes: Without this check, trying to update the UI of a disposed widget would result in an error.
+Safe Widget Lifecycle Management: Ensures operations are only performed when the widget is active.
 
-            if (!mounted) {
-              return;
-            }
+It is true when the State object is currently attached to the widget tree.
+It becomes false when the widget is removed from the widget tree (i.e., the dispose method has been called).
+*/
+              if (!mounted) {
+                return;
+              }
 
-            if (_isRecording) {
-              final video = await _controller.stopVideoRecording();
+              if (_isRecording) {
+                final video = await _controller.stopVideoRecording();
 
-              await Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => VideoPlayerScreen(
-                    videoPath: video.path,
+                await Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => VideoPlayerScreen(
+                      videoPath: video.path,
+                    ),
                   ),
-                ),
-              );
-            } else {
-              await _controller.prepareForVideoRecording();
-              await _controller.startVideoRecording();
-            }
+                );
+              } else {
+                await _controller.prepareForVideoRecording();
+                await _controller.startVideoRecording();
+              }
 
-            setState(() {
-              _isRecording = !_isRecording;
-            });
-          } catch (e) {
-            print(e);
-          }
-        },
-        child: Icon(_isRecording ? Icons.stop : Icons.circle),
-      ),
+              setState(() {
+                _isRecording = !_isRecording;
+              });
+            } catch (e) {
+              print(e);
+            }
+          },
+          // child: Icon(_isRecording ? Icons.stop : Icons.circle),
+          child: _isRecording
+              ? Icon(
+                  Icons.stop,
+                  color: Colors.red,
+                )
+              : Icon(
+                  Icons.circle,
+                  color: Colors.blue,
+                )),
     );
   }
 }
