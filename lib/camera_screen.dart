@@ -16,7 +16,7 @@ class CameraScreen extends StatefulWidget {
 
 class _CameraScreenState extends State<CameraScreen> {
   // late CameraController _controller;
-  late Future<void> _initializeControllerFuture;
+  Future<void>? _initializeControllerFuture;
   bool _isRecording = false;
   int _selectedIndex = 1;
   CameraController? _cameraController;
@@ -133,7 +133,8 @@ class _CameraScreenState extends State<CameraScreen> {
 
   @override
   Widget build(BuildContext context) {
-    print('Building widget. _isRecording: $_isRecording, _recordingDuration: $_recordingDuration');
+    print(
+        'Building widget. _isRecording: $_isRecording, _recordingDuration: $_recordingDuration');
     final height = MediaQuery.of(context).size.height;
 
 // this is required if i not use futurebuilder
@@ -142,28 +143,6 @@ class _CameraScreenState extends State<CameraScreen> {
     // }
     // futurebuilder is very important otherwise get screen hold error
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          'Create a moment',
-          style: TextStyle(letterSpacing: 1.5),
-        ),
-        backgroundColor: Color(0x44000000),
-        elevation: 0,
-        actions: [
-          if(_isRecording)
-            Padding(
-              padding: const EdgeInsets.only(right: 5),
-              child: Text(
-                '$_recordingDuration seconds',
-                style: TextStyle(
-                  fontSize: 20,
-                  color: Colors.red,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-        ],
-      ),
       body: _selectedIndex == 1
           ? FutureBuilder(
               future: _initializeControllerFuture,
@@ -171,26 +150,8 @@ class _CameraScreenState extends State<CameraScreen> {
                 if (snapshot.connectionState == ConnectionState.done) {
                   // return SizedBox(height: height, child: CameraPreview(_controller));
                   return Stack(
+                    alignment: Alignment.center,
                     children: [
-                      // Timer Text (Positioned at the top center)
-                      // this code not work
-                      // if (_isRecording)
-                      //   Positioned(
-                      //     top: 30, // Adjust this value to position the timer
-                      //     left: 0,
-                      //     right: 0,
-                      //     child: Center(
-                      //       child: Text(
-                      //         '$_recordingDuration seconds',
-                      //         style: TextStyle(
-                      //           fontSize: 20,
-                      //           color: Colors.red,
-                      //           fontWeight: FontWeight.bold,
-                      //         ),
-                      //       ),
-                      //     ),
-                      //   ),
-
                       SizedBox(
                           height: height,
                           child: CameraPreview(_cameraController!)),
@@ -201,7 +162,11 @@ class _CameraScreenState extends State<CameraScreen> {
                         child: Column(
                           children: [
                             IconButton(
-                              icon: Icon(Icons.mic),
+                              icon: Icon(
+                                Icons.mic,
+                                color: Colors.white,
+                                size: 30,
+                              ),
                               onPressed: () {
                                 Navigator.of(context).push(MaterialPageRoute(
                                   builder: (context) => AudioRecorderPage(),
@@ -209,13 +174,22 @@ class _CameraScreenState extends State<CameraScreen> {
                               },
                             ),
                             Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 IconButton(
-                                  icon: Icon(Icons.photo_library),
+                                  // icon: Icon(Icons.photo_library),
+                                  icon: Image.asset(
+                                    'Assets/icon/gallery.png',
+                                    color: Colors.white,
+                                    height: 25,
+                                    width: 25,
+                                  ),
                                   onPressed: () {
                                     _pickImageFromGallery(context);
                                   },
+                                ),
+                                SizedBox(
+                                  width: 15,
                                 ),
                                 GestureDetector(
                                   onTap: () {
@@ -229,7 +203,6 @@ class _CameraScreenState extends State<CameraScreen> {
                                   //   ));
                                   // },
                                   onLongPressStart: (details) async {
-
                                     try {
                                       await _initializeControllerFuture;
                                       if (!mounted) {
@@ -249,7 +222,6 @@ class _CameraScreenState extends State<CameraScreen> {
                                     } catch (e) {}
                                   },
                                   onLongPressEnd: (details) async {
-
                                     try {
                                       final video = await _cameraController!
                                           .stopVideoRecording();
@@ -280,8 +252,17 @@ class _CameraScreenState extends State<CameraScreen> {
                                     ),
                                   ),
                                 ),
+                                SizedBox(
+                                  width: 15,
+                                ),
                                 IconButton(
-                                  icon: Icon(Icons.switch_camera),
+                                  // icon: Icon(Icons.switch_camera),
+                                  icon: Image.asset(
+                                    'Assets/icon/camera exchange.png',
+                                    color: Colors.white,
+                                    height: 28,
+                                    width: 28,
+                                  ),
                                   onPressed: _switchCamera,
                                 ),
                               ],
@@ -289,6 +270,33 @@ class _CameraScreenState extends State<CameraScreen> {
                           ],
                         ),
                       ),
+                      Positioned(
+                        top: 30,
+                        left: 90,
+                        child: Text(
+                          'Capture a moment',
+                          style: TextStyle(
+                              fontSize: 22,
+                              color: Colors.white,
+                              fontWeight: FontWeight.w700),
+                        ),
+                      ),
+                      // Timer Text (Positioned at the top center)
+                      // this code not work
+                      if (_isRecording)
+                        Positioned(
+                          top: 45, // Adjust this value to position the timer
+
+                          right: 10,
+                          child: Text(
+                            '$_recordingDuration seconds',
+                            style: TextStyle(
+                              fontSize: 15,
+                              color: Colors.pink,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
                     ],
                   );
                 } else {
@@ -300,9 +308,11 @@ class _CameraScreenState extends State<CameraScreen> {
               child: Text('Page ${_selectedIndex == 0 ? 'Feed' : 'Timeline'}'),
             ),
       bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
+        items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon: Icon(Icons.feed_outlined),
+            // icon: Icon(Icons.feed_outlined),
+            icon: Image.asset('Assets/icon/feed.png',
+                height: 22, width: 22, color: Colors.white38),
             label: 'Feed',
           ),
           BottomNavigationBarItem(
@@ -310,12 +320,16 @@ class _CameraScreenState extends State<CameraScreen> {
             label: 'Camera',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.timeline),
+            // icon: Icon(Icons.view_timeline),
+            icon: Image.asset('Assets/icon/timeline.png',
+                height: 22, width: 22, color: Colors.white38),
             label: 'Timeline',
           ),
         ],
         currentIndex: _selectedIndex,
-        selectedItemColor: Colors.amber[800],
+        selectedItemColor: Colors.white,
+        unselectedItemColor: Colors.white38,
+        backgroundColor: Colors.black87.withAlpha(200),
         onTap: _onItemTapped,
       ),
     );
