@@ -1,8 +1,8 @@
 import 'dart:io';
-
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:new_app/audio/audio_recorder.dart';
 import 'package:new_app/image_preview.dart';
 import 'package:new_app/video/video_recorder_screen.dart';
 
@@ -134,7 +134,9 @@ class _CameraScreenState extends State<CameraScreen> {
                       IconButton(
                         icon: Icon(Icons.mic),
                         onPressed: () {
-                          // Voice record functionality
+                          Navigator.of(context).push(MaterialPageRoute(
+                            builder: (context) => AudioRecorderPage(),
+                          ));
                         },
                       ),
                       Row(
