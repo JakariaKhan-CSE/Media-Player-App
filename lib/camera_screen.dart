@@ -4,7 +4,9 @@ import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:new_app/audio/audio_recorder.dart';
+import 'package:new_app/feed.dart';
 import 'package:new_app/image_preview.dart';
+import 'package:new_app/timeline.dart';
 import 'package:new_app/video/video_player.dart';
 
 class CameraScreen extends StatefulWidget {
@@ -15,8 +17,11 @@ class CameraScreen extends StatefulWidget {
 }
 
 class _CameraScreenState extends State<CameraScreen> {
+  List screen = [FeedScreen(), TimeLineScreen()];
+
   // late CameraController _controller;
-  Future<void>? _initializeControllerFuture;
+  Future<void>?
+      _initializeControllerFuture; // remove late and add nullable and error is gone
   bool _isRecording = false;
   int _selectedIndex = 1;
   CameraController? _cameraController;
@@ -304,9 +309,12 @@ class _CameraScreenState extends State<CameraScreen> {
                 }
               },
             )
-          : Center(
-              child: Text('Page ${_selectedIndex == 0 ? 'Feed' : 'Timeline'}'),
-            ),
+          : _selectedIndex == 2
+              ? screen[1]
+              : Center(
+                  child:
+                      Text('Page ${_selectedIndex == 0 ? 'Feed' : 'Timeline'}'),
+                ),
       bottomNavigationBar: BottomNavigationBar(
         items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(
