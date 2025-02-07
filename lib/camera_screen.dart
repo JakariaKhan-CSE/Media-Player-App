@@ -7,6 +7,7 @@ import 'package:new_app/audio/audio_recorder.dart';
 import 'package:new_app/feed.dart';
 import 'package:new_app/image_preview.dart';
 import 'package:new_app/timeline.dart';
+import 'package:new_app/timelineanother.dart';
 import 'package:new_app/video/video_player.dart';
 
 class CameraScreen extends StatefulWidget {
@@ -17,7 +18,11 @@ class CameraScreen extends StatefulWidget {
 }
 
 class _CameraScreenState extends State<CameraScreen> {
-  List screen = [FeedScreen(), TimeLineScreen()];
+  List screen = [
+    FeedScreen(),
+    TimeLineScreen()
+    // TimeLineAnother()
+  ];
 
   // late CameraController _controller;
   Future<void>?
