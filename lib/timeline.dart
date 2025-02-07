@@ -9,7 +9,7 @@ class TimeLineScreen extends StatefulWidget {
 
 class _TimeLineScreenState extends State<TimeLineScreen> {
   // Dummy data
-  List<String> items = List.generate(20, (index) => 'Item ${index + 1}');
+  List<String> items = List.generate(10, (index) => 'Item ${index + 1}');
 
   // Controller to manage scroll position
   final FixedExtentScrollController _scrollController =
@@ -66,16 +66,19 @@ class _TimeLineScreenState extends State<TimeLineScreen> {
           children: [
             Expanded(
               child: ListWheelScrollView.useDelegate(
-                  itemExtent: 50, // Height of each item
+                  itemExtent: 150, // Height of each item
                   controller: _scrollController, // Attach the scroll controller
                   physics: FixedExtentScrollPhysics(), // Snap to items
                   childDelegate: ListWheelChildBuilderDelegate(
                     childCount: items.length,
                     builder: (context, index) {
-                      return Center(
-                        child: Text(
-                          items[index],
-                          style: TextStyle(fontSize: 20),
+                      return Container(
+                        color: Colors.pink.withAlpha(180),
+                        child: Center(
+                          child: Text(
+                            items[index],
+                            style: TextStyle(fontSize: 20),
+                          ),
                         ),
                       );
                       // return Container(
